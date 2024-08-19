@@ -300,7 +300,7 @@
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-      import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+      import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
       // Your web app's Firebase configuration
       const firebaseConfig = {
@@ -317,9 +317,8 @@
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
-      const db = getFirestore(app);
+      const db = getDatabase(app);
 
-      // Definición de infoData con la información de las materias
       const infoData = {
         "Taller de Emprendedorismo": {
           horario: "Martes 14:00 - 18:00",
@@ -399,25 +398,32 @@
         document.getElementById('profesores').innerText = data.profesores;
         document.getElementById('email').innerText = data.email;
 
-        // Recupera comentarios desde Firestore
-        const commentSnapshot = await getDocs(collection(db, 'comentarios'));
+        // Recupera comentarios desde Realtime Database
+        const dbRef = ref(db);
+        const comentariosSnapshot = await get(child(dbRef, 'comentarios'));
         let comentarios = [];
-        commentSnapshot.forEach((doc) => {
-          if (doc.data().materia === currentMateria) {
-            comentarios.push(doc.data().comentario);
-          }
-        });
+        if (comentariosSnapshot.exists()) {
+          comentariosSnapshot.forEach(childSnapshot => {
+            const comentarioData = childSnapshot.val();
+            if (comentarioData.materia === currentMateria) {
+              comentarios.push(comentarioData.comentario);
+            }
+          });
+        }
         infoData[currentMateria].comentarios = comentarios;
         actualizarLista('comentariosList', comentarios, 'comentarios');
 
-        // Recupera tareas desde Firestore
-        const tareaSnapshot = await getDocs(collection(db, 'tareas'));
+        // Recupera tareas desde Realtime Database
+        const tareasSnapshot = await get(child(dbRef, 'tareas'));
         let tareas = [];
-        tareaSnapshot.forEach((doc) => {
-          if (doc.data().materia === currentMateria) {
-            tareas.push(doc.data().tarea);
-          }
-        });
+        if (tareasSnapshot.exists()) {
+          tareasSnapshot.forEach(childSnapshot => {
+            const tareaData = childSnapshot.val();
+            if (tareaData.materia === currentMateria) {
+              tareas.push(tareaData.tarea);
+            }
+          });
+        }
         infoData[currentMateria].tareas = tareas;
         actualizarLista('tareasList', tareas, 'tareas');
 
@@ -428,6 +434,36 @@
       window.closeInfo = function() {
         document.getElementById('horarioTable').classList.remove('shrink');
         document.getElementById('infoModule').classList.remove('active');
+      };
+
+      window.agregarComentario = async function() {
+        const comentario = document.getElementById('nuevoComentario').value;
+        if (comentario) {
+          const newCommentRef = ref(db, 'comentarios/' + Date.now());
+          set(newCommentRef, {
+            comentario: comentario,
+            materia: currentMateria,
+            timestamp: Date.now(),
+          });
+          infoData[currentMateria].comentarios.push(comentario);
+          actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
+          document.getElementById('nuevoComentario').value = '';
+        }
+      };
+
+      window.agregarTarea = async function() {
+        const tarea = document.getElementById('nuevaTarea').value;
+        if (tarea) {
+          const newTaskRef = ref(db, 'tareas/' + Date.now());
+          set(newTaskRef, {
+            tarea: tarea,
+            materia: currentMateria,
+            timestamp: Date.now(),
+          });
+          infoData[currentMateria].tareas.push(tarea);
+          actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
+          document.getElementById('nuevaTarea').value = '';
+        }
       };
 
       function actualizarLista(elementId, items, type) {
@@ -449,42 +485,6 @@
           list.appendChild(li);
         });
       }
-
-      window.agregarComentario = async function() {
-        const comentario = document.getElementById('nuevoComentario').value;
-        if (comentario) {
-          try {
-            await addDoc(collection(db, 'comentarios'), {
-              comentario: comentario,
-              materia: currentMateria,
-              timestamp: new Date(),
-            });
-            infoData[currentMateria].comentarios.push(comentario);
-            actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
-            document.getElementById('nuevoComentario').value = '';
-          } catch (e) {
-            console.error('Error adding comment: ', e);
-          }
-        }
-      };
-
-      window.agregarTarea = async function() {
-        const tarea = document.getElementById('nuevaTarea').value;
-        if (tarea) {
-          try {
-            await addDoc(collection(db, 'tareas'), {
-              tarea: tarea,
-              materia: currentMateria,
-              timestamp: new Date(),
-            });
-            infoData[currentMateria].tareas.push(tarea);
-            actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
-            document.getElementById('nuevaTarea').value = '';
-          } catch (e) {
-            console.error('Error adding task: ', e);
-          }
-        }
-      };
     </script>
 </body>
 </html>
