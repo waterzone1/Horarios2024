@@ -21,7 +21,7 @@
             align-items: center;
 
             width: 100%;
-            max-width: 1400px;
+            max-width: 1600px;
             transition: width 0.3s ease;
         }
         table {
@@ -130,7 +130,8 @@
             transition: transform 0.3s ease;
         }
         #infoModule.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
 
             transform: translateX(0);
         }
@@ -194,6 +195,16 @@
         .input-group button:hover {
             background-color: #1abc9c;
         }
+        .info-columns {
+    		display: flex;
+    		flex-direction: row;
+    		justify-content: space-between;
+
+		}
+		.column {
+  		  width: 48%; /* Ajusta el ancho de las columnas como prefieras */
+		}
+
         /* Botón para cerrar el módulo */
         .close-btn {
             background-color: #e74c3c;
@@ -251,7 +262,7 @@
                 <td><button class="btn materia-1" onclick="showInfo('Taller de Emprendedorismo')">Taller de Emprendedorismo</button></td>
                 <td class="empty-cell"></td>
                 <td class="empty-cell"></td>
-                <td class="empty-cell"></td>
+                <td><button class="btn materia-6" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
             </tr>
             <tr>
                 <td>18:00 - 19:00</td>
@@ -291,35 +302,43 @@
                 <td><button class="btn materia-3" onclick="showInfo('Auditoría Informática')">Auditoría Informática</button></td>
                 <td><button class="btn materia-4" onclick="showInfo('Gerenciamiento y Evaluación de Proyectos')">Gerenciamiento y Evaluación de Proyectos</button></td>
                 <td><button class="btn materia-5" onclick="showInfo('Proyecto Integral de Desarrollo')">Proyecto Integral de Desarrollo</button></td>
-                <td><button class="btn materia-6" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
+                <td class="empty-cell"></td>
             </tr>
         </table>
 
         <div id="infoModule">
-            <button class="close-btn" onclick="closeInfo()">X</button>
-            <h2 id="materiaTitle">Materia</h2>
-            <p><strong>Horario:</strong> <span id="horario"></span></p>
-            <p><strong>Fecha de Parcial:</strong> <span id="parcial"></span></p>
-            <p><strong>Fecha de Recuperatorio:</strong> <span id="recuperatorio"></span></p>
-            <p><strong>Fecha de Final:</strong> <span id="final"></span></p>
-            <p><strong>Profesor(es):</strong> <span id="profesores"></span></p>
-            <p><strong>Email:</strong> <span id="email"></span></p>
-            
-            <!-- Sección para agregar tareas -->
+    <button class="close-btn" onclick="closeInfo()">Cerrar</button>
+    <h2 id="materiaTitle">Materia</h2>
+    <p><strong>Horario:</strong> <span id="horario"></span></p>
+    <p><strong>Fecha de Parcial:</strong> <span id="parcial"></span></p>
+    <p><strong>Fecha de Recuperatorio:</strong> <span id="recuperatorio"></span></p>
+    <p><strong>Fecha de Final:</strong> <span id="final"></span></p>
+    <p><strong>Profesor(es):</strong> <span id="profesores"></span></p>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>Aula:</strong> <span id="aula"></span></p>
+    <p><span id="campus"></span></p>
+    
+    <div class="info-columns">
+        <div class="column">
             <div class="input-group">
                 <input type="text" id="nuevaTarea" placeholder="Escribe una tarea...">
-                <button onclick="agregarTarea()">Agregar</button>
+                <button onclick="agregarTarea()">+</button>
             </div>
+            <strong style="color: #34495e">Tareas</strong>
             <ul id="tareasList"></ul>
-
-            <!-- Sección para agregar comentarios -->
+        </div>
+        <div class="column">
             <div class="input-group">
                 <input type="text" id="nuevoComentario" placeholder="Escribe un comentario...">
-                <button onclick="agregarComentario()">Agregar</button>
+                <button onclick="agregarComentario()">+</button>
             </div>
+            <strong style="color: #34495e">Comentarios</strong>
             <ul id="comentariosList"></ul>
         </div>
     </div>
+</div>
+
+
 
     <!-- Firebase Configuration -->
     <script type="module">
@@ -353,6 +372,8 @@
           final: "-",
           profesores: "-",
           email: "-",
+          campus: "https://eva.uca.edu.ar/course/view.php?id=23845" ,
+          aula: "252 Magno",
           comentarios: [],
           tareas: []
         },
@@ -363,6 +384,8 @@
           final: "-",
           profesores: "German Bollman",
           email: "-",
+          campus: "https://eva.uca.edu.ar/course/view.php?id=16083" ,
+          aula: "LIR B",
           comentarios: [],
           tareas: []
         },
@@ -373,6 +396,8 @@
           final: "-",
           profesores: "German Bollman",
           email: "-",
+          campus: "https://eva.uca.edu.ar/course/view.php?id=24209" ,
+          aula: "109 Magno",
           comentarios: [],
           tareas: []
         },
@@ -383,6 +408,8 @@
           final: "-",
           profesores: "Liliana Radicce",
           email: "-",
+          campus: "https://eva.uca.edu.ar/course/view.php?id=24230" ,
+          aula: "S0B Moro (auditorio)",
           comentarios: [],
           tareas: []
         },
@@ -393,6 +420,8 @@
           final: "-",
           profesores: "Jorge Nahas",
           email: "-",
+          campus: "https://eva.uca.edu.ar/course/view.php?id=23924" ,
+          aula: "220 San José",
           comentarios: [],
           tareas: []
         },
@@ -403,6 +432,8 @@
           final: "-",
           profesores: "Alejandro",
           email: "-",
+          campus: "https://eva.uca.edu.ar/course/view.php?id=23680" ,
+          aula: "217 San José",
           comentarios: [],
           tareas: []
         }
@@ -423,6 +454,10 @@
         document.getElementById('final').innerText = data.final;
         document.getElementById('profesores').innerText = data.profesores;
         document.getElementById('email').innerText = data.email;
+        document.getElementById('aula').innerText = data.aula;
+
+        const campusElement = document.getElementById('campus');
+ 	   campusElement.innerHTML = `<a href="${data.campus}" target="_blank"><button>Visitar Campus</button></a>`;
 
         // Recupera comentarios desde Realtime Database
         const dbRef = ref(db);
