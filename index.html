@@ -270,8 +270,7 @@
 
     </table>
 
-    
-    <div id="infoModule">
+        <div id="infoModule">
             <button class="close-btn" onclick="closeInfo()">X</button>
             <h2 id="materiaTitle">Materia</h2>
             <p><strong>Horario:</strong> <span id="horario"></span></p>
@@ -297,107 +296,131 @@
         </div>
     </div>
 
-    <script>
-        const infoData = {
-            "Taller de Emprendedorismo": {
-                horario: "Martes 14:00 - 18:00",
-                parcial: "15 de Octubre",
-                recuperatorio: "5 de Noviembre",
-                final: "20 de Diciembre",
-                profesores: "Prof. Juan Pérez",
-                email: "juan.perez@ejemplo.com",
-                tareas: [],
-                comentarios: []
-            },
-            // Agrega más materias aquí
-        };
-
-        let currentMateria = "";
-
-        function showInfo(materia) {
-            currentMateria = materia;
-            const data = infoData[materia];
-            document.getElementById('materiaTitle').innerText = materia;
-            document.getElementById('horario').innerText = data.horario;
-            document.getElementById('parcial').innerText = data.parcial;
-            document.getElementById('recuperatorio').innerText = data.recuperatorio;
-            document.getElementById('final').innerText = data.final;
-            document.getElementById('profesores').innerText = data.profesores;
-            document.getElementById('email').innerText = data.email;
-            
-            actualizarLista('tareasList', data.tareas, 'tareas');
-            actualizarLista('comentariosList', data.comentarios, 'comentarios');
-            
-            document.getElementById('horarioTable').classList.add('shrink');
-            document.getElementById('infoModule').classList.add('active');
-        }
-
-        function closeInfo() {
-            document.getElementById('horarioTable').classList.remove('shrink');
-            document.getElementById('infoModule').classList.remove('active');
-        }
-
-        function agregarTarea() {
-            const tarea = document.getElementById('nuevaTarea').value;
-            if (tarea) {
-                infoData[currentMateria].tareas.push(tarea);
-                actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
-                document.getElementById('nuevaTarea').value = '';
-            }
-        }
-
-        function agregarComentario() {
-            const comentario = document.getElementById('nuevoComentario').value;
-            if (comentario) {
-                infoData[currentMateria].comentarios.push(comentario);
-                actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
-                document.getElementById('nuevoComentario').value = '';
-            }
-        }
-
-        function actualizarLista(elementId, items, type) {
-            const list = document.getElementById(elementId);
-            list.innerHTML = '';
-            items.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.textContent = item;
-
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'X';
-                removeBtn.className = 'remove-btn';
-                removeBtn.onclick = function() {
-                    items.splice(index, 1);
-                    actualizarLista(elementId, items, type);
-                };
-
-                li.appendChild(removeBtn);
-                list.appendChild(li);
-            });
-        }
-    </script>
+    <!-- Firebase Configuration -->
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+      import { getFirestore, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyB3FUYiVZpP9F943aCLJZJ3N8J7RcpRfDY",
-    authDomain: "horarios2024-657a6.firebaseapp.com",
-    databaseURL: "https://horarios2024-657a6-default-rtdb.firebaseio.com",
-    projectId: "horarios2024-657a6",
-    storageBucket: "horarios2024-657a6.appspot.com",
-    messagingSenderId: "445570564452",
-    appId: "1:445570564452:web:287f3f2326b2722f437a71",
-    measurementId: "G-ZQRHDR7STP"
-  };
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB3FUYiVZpP9F943aCLJZJ3N8J7RcpRfDY",
+        authDomain: "horarios2024-657a6.firebaseapp.com",
+        databaseURL: "https://horarios2024-657a6-default-rtdb.firebaseio.com",
+        projectId: "horarios2024-657a6",
+        storageBucket: "horarios2024-657a6.appspot.com",
+        messagingSenderId: "445570564452",
+        appId: "1:445570564452:web:287f3f2326b2722f437a71",
+        measurementId: "G-ZQRHDR7STP"
+      };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+
+      // Function to add a comment to Firestore
+      async function agregarComentario() {
+        const comentario = document.getElementById('nuevoComentario').value;
+        if (comentario) {
+          try {
+            await addDoc(collection(db, 'comentarios'), {
+              comentario: comentario,
+              materia: currentMateria,
+              timestamp: new Date(),
+            });
+            infoData[currentMateria].comentarios.push(comentario);
+            actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
+            document.getElementById('nuevoComentario').value = '';
+          } catch (e) {
+            console.error('Error adding comment: ', e);
+          }
+        }
+      }
+
+      // Function to add a task to Firestore
+      async function agregarTarea() {
+        const tarea = document.getElementById('nuevaTarea').value;
+        if (tarea) {
+          try {
+            await addDoc(collection(db, 'tareas'), {
+              tarea: tarea,
+              materia: currentMateria,
+              timestamp: new Date(),
+            });
+            infoData[currentMateria].tareas.push(tarea);
+            actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
+            document.getElementById('nuevaTarea').value = '';
+          } catch (e) {
+            console.error('Error adding task: ', e);
+          }
+        }
+      }
+
+      // Function to show information about the subject
+      async function showInfo(materia) {
+        currentMateria = materia;
+        const data = infoData[materia];
+
+        // Display static information about the subject
+        document.getElementById('materiaTitle').innerText = materia;
+        document.getElementById('horario').innerText = data.horario;
+        document.getElementById('parcial').innerText = data.parcial;
+        document.getElementById('recuperatorio').innerText = data.recuperatorio;
+        document.getElementById('final').innerText = data.final;
+        document.getElementById('profesores').innerText = data.profesores;
+        document.getElementById('email').innerText = data.email;
+
+        // Retrieve comments from Firestore
+        const qComments = query(collection(db, 'comentarios'), where('materia', '==', currentMateria), orderBy('timestamp'));
+        const commentSnapshot = await getDocs(qComments);
+        let comentarios = [];
+        commentSnapshot.forEach((doc) => {
+          comentarios.push(doc.data().comentario);
+        });
+        infoData[currentMateria].comentarios = comentarios;
+        actualizarLista('comentariosList', comentarios, 'comentarios');
+
+        // Retrieve tasks from Firestore
+        const qTareas = query(collection(db, 'tareas'), where('materia', '==', currentMateria), orderBy('timestamp'));
+        const tareaSnapshot = await getDocs(qTareas);
+        let tareas = [];
+        tareaSnapshot.forEach((doc) => {
+          tareas.push(doc.data().tarea);
+        });
+        infoData[currentMateria].tareas = tareas;
+        actualizarLista('tareasList', tareas, 'tareas');
+
+        document.getElementById('horarioTable').classList.add('shrink');
+        document.getElementById('infoModule').classList.add('active');
+      }
+
+      // Function to close the info module
+      function closeInfo() {
+        document.getElementById('horarioTable').classList.remove('shrink');
+        document.getElementById('infoModule').classList.remove('active');
+      }
+
+      function actualizarLista(elementId, items, type) {
+        const list = document.getElementById(elementId);
+        list.innerHTML = '';
+        items.forEach((item, index) => {
+          const li = document.createElement('li');
+          li.textContent = item;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = 'X';
+          removeBtn.className = 'remove-btn';
+          removeBtn.onclick = function() {
+            items.splice(index, 1);
+            actualizarLista(elementId, items, type);
+          };
+
+          li.appendChild(removeBtn);
+          list.appendChild(li);
+        });
+      }
+    </script>
 </body>
 </html>
