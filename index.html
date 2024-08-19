@@ -385,43 +385,8 @@
 
       let currentMateria = '';
 
-      async function agregarComentario() {
-        const comentario = document.getElementById('nuevoComentario').value;
-        if (comentario) {
-          try {
-            await addDoc(collection(db, 'comentarios'), {
-              comentario: comentario,
-              materia: currentMateria,
-              timestamp: new Date(),
-            });
-            infoData[currentMateria].comentarios.push(comentario);
-            actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
-            document.getElementById('nuevoComentario').value = '';
-          } catch (e) {
-            console.error('Error adding comment: ', e);
-          }
-        }
-      }
-
-      async function agregarTarea() {
-        const tarea = document.getElementById('nuevaTarea').value;
-        if (tarea) {
-          try {
-            await addDoc(collection(db, 'tareas'), {
-              tarea: tarea,
-              materia: currentMateria,
-              timestamp: new Date(),
-            });
-            infoData[currentMateria].tareas.push(tarea);
-            actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
-            document.getElementById('nuevaTarea').value = '';
-          } catch (e) {
-            console.error('Error adding task: ', e);
-          }
-        }
-      }
-
-      async function showInfo(materia) {
+      // Asegurando que showInfo esté en el ámbito global
+      window.showInfo = async function(materia) {
         currentMateria = materia;
         const data = infoData[materia];
 
@@ -458,12 +423,12 @@
 
         document.getElementById('horarioTable').classList.add('shrink');
         document.getElementById('infoModule').classList.add('active');
-      }
+      };
 
-      function closeInfo() {
+      window.closeInfo = function() {
         document.getElementById('horarioTable').classList.remove('shrink');
         document.getElementById('infoModule').classList.remove('active');
-      }
+      };
 
       function actualizarLista(elementId, items, type) {
         const list = document.getElementById(elementId);
@@ -484,6 +449,42 @@
           list.appendChild(li);
         });
       }
+
+      window.agregarComentario = async function() {
+        const comentario = document.getElementById('nuevoComentario').value;
+        if (comentario) {
+          try {
+            await addDoc(collection(db, 'comentarios'), {
+              comentario: comentario,
+              materia: currentMateria,
+              timestamp: new Date(),
+            });
+            infoData[currentMateria].comentarios.push(comentario);
+            actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
+            document.getElementById('nuevoComentario').value = '';
+          } catch (e) {
+            console.error('Error adding comment: ', e);
+          }
+        }
+      };
+
+      window.agregarTarea = async function() {
+        const tarea = document.getElementById('nuevaTarea').value;
+        if (tarea) {
+          try {
+            await addDoc(collection(db, 'tareas'), {
+              tarea: tarea,
+              materia: currentMateria,
+              timestamp: new Date(),
+            });
+            infoData[currentMateria].tareas.push(tarea);
+            actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
+            document.getElementById('nuevaTarea').value = '';
+          } catch (e) {
+            console.error('Error adding task: ', e);
+          }
+        }
+      };
     </script>
 </body>
 </html>
