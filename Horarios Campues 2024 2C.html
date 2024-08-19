@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario de Materias</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            background-image: linear-gradient(to bottom right, #e0e7e9, #f4f7f6);
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            transition: width 0.3s ease;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: width 0.3s ease;
+        }
+        table.shrink {
+            width: 60%;
+        }
+        th, td {
+            padding: 0;
+            text-align: center;
+            width: 16.6%; /* Ancho uniforme para todas las columnas */
+            height: 60px; /* Altura uniforme para todas las filas */
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            height: 60px;
+        }
+        td {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+        td:last-child {
+            border-right: none;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 60px; /* Centra verticalmente el texto */
+            cursor: pointer;
+        }
+        /* Estilos para cada materia con colores más profesionales */
+        .materia-1 {
+            background-color: #6c7a89; /* Gris medio */
+        }
+        .materia-2 {
+            background-color: #95a5a6; /* Gris claro */
+        }
+        .materia-3 {
+            background-color: #2c3e50; /* Azul oscuro */
+        }
+        .materia-4 {
+            background-color: #7f8c8d; /* Gris pizarra */
+        }
+        .materia-5 {
+            background-color: #34495e; /* Azul pizarra */
+        }
+        .materia-6 {
+            background-color: #5d6d7e; /* Gris azulado */
+        }
+        /* Estilo para celdas en blanco */
+        .empty-cell {
+            background-color: #f4f7f6;
+            cursor: default;
+        }
+        /* Estilos para el módulo de información */
+        #infoModule {
+            display: none;
+            width: 35%;
+            margin: 20px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            border-left: 5px solid #2c3e50;
+            transition: transform 0.3s ease;
+        }
+        #infoModule.active {
+            display: block;
+            transform: translateX(0);
+        }
+        #infoModule h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        #infoModule p, #infoModule label {
+            margin: 10px 0;
+            color: #34495e;
+            font-weight: 600;
+        }
+        #tareasList, #comentariosList {
+            margin-top: 10px;
+            list-style-type: none;
+            padding: 0;
+        }
+        #tareasList li, #comentariosList li {
+            background-color: #ecf0f1;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .input-group input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .input-group button {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .input-group button:hover {
+            background-color: #1abc9c;
+        }
+        /* Botón para cerrar el módulo */
+        .close-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            float: right;
+        }
+        .close-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table id="horarioTable">
+        <tr>
+            <th>Hora</th>
+            <th>Lunes</th>
+            <th>Martes</th>
+            <th>Miércoles</th>
+            <th>Jueves</th>
+            <th>Viernes</th>
+        </tr>
+        <tr>
+            <td>14:00 - 15:00</td>
+            <td class="empty-cell"></td>
+            <td><button class="btn materia-1" onclick="showInfo('Taller de Emprendedorismo')">Taller de Emprendedorismo</button></td>
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+        </tr>
+        <tr>
+    <td>15:00 - 16:00</td>
+    <td class="empty-cell"></td>
+    <td><button class="btn materia-1" onclick="showInfo('Taller de Emprendedorismo')">Taller de Emprendedorismo</button></td>
+    <td class="empty-cell"></td>
+    <td class="empty-cell"></td>
+    <td class="empty-cell"></td>
+</tr>
+<tr>
+    <td>16:00 - 17:00</td>
+    <td class="empty-cell"></td>
+    <td><button class="btn materia-1" onclick="showInfo('Taller de Emprendedorismo')">Taller de Emprendedorismo</button></td>
+    <td class="empty-cell"></td>
+    <td class="empty-cell"></td>
+    <td class="empty-cell"></td>
+</tr>
+<tr>
+    <td>17:00 - 18:00</td>
+    <td class="empty-cell"></td>
+    <td><button class="btn materia-1" onclick="showInfo('Taller de Emprendedorismo')">Taller de Emprendedorismo</button></td>
+    <td class="empty-cell"></td>
+    <td class="empty-cell"></td>
+    <td class="empty-cell"></td>
+</tr>
+<tr>
+    <td>18:00 - 19:00</td>
+    <td><button class="btn materia-2" onclick="showInfo('Seguridad Informática y Criptografía')">Seguridad Informática y Criptografía</button></td>
+    <td><button class="btn materia-2" onclick="showInfo('Auditoría Informática')">Auditoría Informática</button></td>
+    <td><button class="btn materia-3" onclick="showInfo('Gerenciamiento y Evaluación de Proyectos')">Gerenciamiento y Evaluación de Proyectos</button></td>
+    <td><button class="btn materia-4" onclick="showInfo('Proyecto Integral de Desarrollo')">Proyecto Integral de Desarrollo</button></td>
+    <td><button class="btn materia-5" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
+</tr>
+<tr>
+    <td>19:00 - 20:00</td>
+    <td><button class="btn materia-2" onclick="showInfo('Seguridad Informática y Criptografía')">Seguridad Informática y Criptografía</button></td>
+    <td><button class="btn materia-2" onclick="showInfo('Auditoría Informática')">Auditoría Informática</button></td>
+    <td><button class="btn materia-3" onclick="showInfo('Gerenciamiento y Evaluación de Proyectos')">Gerenciamiento y Evaluación de Proyectos</button></td>
+    <td><button class="btn materia-4" onclick="showInfo('Proyecto Integral de Desarrollo')">Proyecto Integral de Desarrollo</button></td>
+    <td><button class="btn materia-5" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
+</tr>
+<tr>
+    <td>20:00 - 21:00</td>
+    <td><button class="btn materia-2" onclick="showInfo('Seguridad Informática y Criptografía')">Seguridad Informática y Criptografía</button></td>
+    <td><button class="btn materia-2" onclick="showInfo('Auditoría Informática')">Auditoría Informática</button></td>
+    <td><button class="btn materia-3" onclick="showInfo('Gerenciamiento y Evaluación de Proyectos')">Gerenciamiento y Evaluación de Proyectos</button></td>
+    <td><button class="btn materia-4" onclick="showInfo('Proyecto Integral de Desarrollo')">Proyecto Integral de Desarrollo</button></td>
+    <td><button class="btn materia-5" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
+</tr>
+<tr>
+    <td>21:00 - 22:00</td>
+    <td><button class="btn materia-2" onclick="showInfo('Seguridad Informática y Criptografía')">Seguridad Informática y Criptografía</button></td>
+    <td><button class="btn materia-2" onclick="showInfo('Auditoría Informática')">Auditoría Informática</button></td>
+    <td><button class="btn materia-3" onclick="showInfo('Gerenciamiento y Evaluación de Proyectos')">Gerenciamiento y Evaluación de Proyectos</button></td>
+    <td><button class="btn materia-4" onclick="showInfo('Proyecto Integral de Desarrollo')">Proyecto Integral de Desarrollo</button></td>
+    <td><button class="btn materia-5" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
+</tr>
+<tr>
+    <td>22:00 - 23:00</td>
+    <td><button class="btn materia-2" onclick="showInfo('Seguridad Informática y Criptografía')">Seguridad Informática y Criptografía</button></td>
+    <td><button class="btn materia-2" onclick="showInfo('Auditoría Informática')">Auditoría Informática</button></td>
+    <td><button class="btn materia-3" onclick="showInfo('Gerenciamiento y Evaluación de Proyectos')">Gerenciamiento y Evaluación de Proyectos</button></td>
+    <td><button class="btn materia-4" onclick="showInfo('Proyecto Integral de Desarrollo')">Proyecto Integral de Desarrollo</button></td>
+    <td><button class="btn materia-5" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
+</tr>
+
+    </table>
+
+    
+    <div id="infoModule">
+            <button class="close-btn" onclick="closeInfo()">X</button>
+            <h2 id="materiaTitle">Materia</h2>
+            <p><strong>Horario:</strong> <span id="horario"></span></p>
+            <p><strong>Fecha de Parcial:</strong> <span id="parcial"></span></p>
+            <p><strong>Fecha de Recuperatorio:</strong> <span id="recuperatorio"></span></p>
+            <p><strong>Fecha de Final:</strong> <span id="final"></span></p>
+            <p><strong>Profesor(es):</strong> <span id="profesores"></span></p>
+            <p><strong>Email:</strong> <span id="email"></span></p>
+            
+            <!-- Sección para agregar tareas -->
+            <div class="input-group">
+                <input type="text" id="nuevaTarea" placeholder="Escribe una tarea...">
+                <button onclick="agregarTarea()">Agregar</button>
+            </div>
+            <ul id="tareasList"></ul>
+
+            <!-- Sección para agregar comentarios -->
+            <div class="input-group">
+                <input type="text" id="nuevoComentario" placeholder="Escribe un comentario...">
+                <button onclick="agregarComentario()">Agregar</button>
+            </div>
+            <ul id="comentariosList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const infoData = {
+            "Taller de Emprendedorismo": {
+                horario: "Martes 14:00 - 18:00",
+                parcial: "15 de Octubre",
+                recuperatorio: "5 de Noviembre",
+                final: "20 de Diciembre",
+                profesores: "Prof. Juan Pérez",
+                email: "juan.perez@ejemplo.com",
+                tareas: [],
+                comentarios: []
+            },
+            // Agrega más materias aquí
+        };
+
+        let currentMateria = "";
+
+        function showInfo(materia) {
+            currentMateria = materia;
+            const data = infoData[materia];
+            document.getElementById('materiaTitle').innerText = materia;
+            document.getElementById('horario').innerText = data.horario;
+            document.getElementById('parcial').innerText = data.parcial;
+            document.getElementById('recuperatorio').innerText = data.recuperatorio;
+            document.getElementById('final').innerText = data.final;
+            document.getElementById('profesores').innerText = data.profesores;
+            document.getElementById('email').innerText = data.email;
+            
+            actualizarLista('tareasList', data.tareas, 'tareas');
+            actualizarLista('comentariosList', data.comentarios, 'comentarios');
+            
+            document.getElementById('horarioTable').classList.add('shrink');
+            document.getElementById('infoModule').classList.add('active');
+        }
+
+        function closeInfo() {
+            document.getElementById('horarioTable').classList.remove('shrink');
+            document.getElementById('infoModule').classList.remove('active');
+        }
+
+        function agregarTarea() {
+            const tarea = document.getElementById('nuevaTarea').value;
+            if (tarea) {
+                infoData[currentMateria].tareas.push(tarea);
+                actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
+                document.getElementById('nuevaTarea').value = '';
+            }
+        }
+
+        function agregarComentario() {
+            const comentario = document.getElementById('nuevoComentario').value;
+            if (comentario) {
+                infoData[currentMateria].comentarios.push(comentario);
+                actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
+                document.getElementById('nuevoComentario').value = '';
+            }
+        }
+
+        function actualizarLista(elementId, items, type) {
+            const list = document.getElementById(elementId);
+            list.innerHTML = '';
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.textContent = item;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'X';
+                removeBtn.className = 'remove-btn';
+                removeBtn.onclick = function() {
+                    items.splice(index, 1);
+                    actualizarLista(elementId, items, type);
+                };
+
+                li.appendChild(removeBtn);
+                list.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
