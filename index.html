@@ -320,7 +320,14 @@
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
 
-      // Function to add a comment to Firestore
+      // Ahora no necesitas incluir ninguna función aquí, ya que estarán en el bloque de script global
+    </script>
+
+    <script>
+      // Mueve todas las funciones que deben ser accesibles globalmente fuera del módulo
+
+      let currentMateria = '';
+
       async function agregarComentario() {
         const comentario = document.getElementById('nuevoComentario').value;
         if (comentario) {
@@ -339,7 +346,6 @@
         }
       }
 
-      // Function to add a task to Firestore
       async function agregarTarea() {
         const tarea = document.getElementById('nuevaTarea').value;
         if (tarea) {
@@ -358,7 +364,6 @@
         }
       }
 
-      // Function to show information about the subject
       async function showInfo(materia) {
         currentMateria = materia;
         const data = infoData[materia];
@@ -396,7 +401,6 @@
         document.getElementById('infoModule').classList.add('active');
       }
 
-      // Function to close the info module
       function closeInfo() {
         document.getElementById('horarioTable').classList.remove('shrink');
         document.getElementById('infoModule').classList.remove('active');
