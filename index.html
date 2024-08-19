@@ -9,7 +9,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 150vh;
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
@@ -17,8 +17,11 @@
         }
         .container {
             display: flex;
-            justify-content: space-between;
-            width: 90%;
+            justify-content: center;
+            align-items: center;
+
+            width: 100%;
+            max-width: 1400px;
             transition: width 0.3s ease;
         }
         table {
@@ -28,10 +31,11 @@
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
-            transition: width 0.3s ease;
+            transition: transform 0.3s ease, width 0.3s ease;
         }
         table.shrink {
-            width: 60%;
+            transform: scale(0.8);
+            width: 70%;
         }
         th, td {
             padding: 0;
@@ -115,9 +119,10 @@
         /* Estilos para el módulo de información */
         #infoModule {
             display: none;
-            width: 35%;
-            margin: 20px;
-            padding: 20px;
+            width: 30%;
+            margin: 0px;
+            margin-top: 0px;
+            padding: 50px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             background-color: #f9f9f9;
@@ -126,6 +131,7 @@
         }
         #infoModule.active {
             display: block;
+
             transform: translateX(0);
         }
         #infoModule h2 {
@@ -208,7 +214,7 @@
     <div class="container">
         <table id="horarioTable">
             <tr>
-                <th><button class="btn materia-1" onclick="window.location.href='https://console.firebase.google.com/project/horarios2024-657a6/database/horarios2024-657a6-default-rtdb/data?hl=es-419';">Link a la DB</button></th>
+                <th>Hora</th>
                 <th>Lunes</th>
                 <th>Martes</th>
                 <th>Miércoles</th>
@@ -288,7 +294,7 @@
                 <td><button class="btn materia-6" onclick="showInfo('Economía de la Empresa')">Economía de la Empresa</button></td>
             </tr>
         </table>
-       
+
         <div id="infoModule">
             <button class="close-btn" onclick="closeInfo()">X</button>
             <h2 id="materiaTitle">Materia</h2>
