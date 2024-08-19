@@ -300,7 +300,7 @@
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-      import { getFirestore, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+      import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
       // Your web app's Firebase configuration
       const firebaseConfig = {
@@ -318,9 +318,7 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
-    </script>
 
-    <script>
       // Definición de infoData con la información de las materias
       const infoData = {
         "Taller de Emprendedorismo": {
@@ -437,21 +435,23 @@
         document.getElementById('email').innerText = data.email;
 
         // Recupera comentarios desde Firestore
-        const qComments = query(collection(db, 'comentarios'), where('materia', '==', currentMateria), orderBy('timestamp'));
-        const commentSnapshot = await getDocs(qComments);
+        const commentSnapshot = await getDocs(collection(db, 'comentarios'));
         let comentarios = [];
         commentSnapshot.forEach((doc) => {
-          comentarios.push(doc.data().comentario);
+          if (doc.data().materia === currentMateria) {
+            comentarios.push(doc.data().comentario);
+          }
         });
         infoData[currentMateria].comentarios = comentarios;
         actualizarLista('comentariosList', comentarios, 'comentarios');
 
         // Recupera tareas desde Firestore
-        const qTareas = query(collection(db, 'tareas'), where('materia', '==', currentMateria), orderBy('timestamp'));
-        const tareaSnapshot = await getDocs(qTareas);
+        const tareaSnapshot = await getDocs(collection(db, 'tareas'));
         let tareas = [];
         tareaSnapshot.forEach((doc) => {
-          tareas.push(doc.data().tarea);
+          if (doc.data().materia === currentMateria) {
+            tareas.push(doc.data().tarea);
+          }
         });
         infoData[currentMateria].tareas = tareas;
         actualizarLista('tareasList', tareas, 'tareas');
