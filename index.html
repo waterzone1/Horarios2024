@@ -300,7 +300,7 @@
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-      import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+      import { getDatabase, ref, set, get, child, remove, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
       // Your web app's Firebase configuration
       const firebaseConfig = {
@@ -406,7 +406,7 @@
           comentariosSnapshot.forEach(childSnapshot => {
             const comentarioData = childSnapshot.val();
             if (comentarioData.materia === currentMateria) {
-              comentarios.push(comentarioData.comentario);
+              comentarios.push({ id: childSnapshot.key, texto: comentarioData.comentario });
             }
           });
         }
@@ -420,7 +420,7 @@
           tareasSnapshot.forEach(childSnapshot => {
             const tareaData = childSnapshot.val();
             if (tareaData.materia === currentMateria) {
-              tareas.push(tareaData.tarea);
+              tareas.push({ id: childSnapshot.key, texto: tareaData.tarea });
             }
           });
         }
@@ -445,7 +445,7 @@
             materia: currentMateria,
             timestamp: Date.now(),
           });
-          infoData[currentMateria].comentarios.push(comentario);
+          infoData[currentMateria].comentarios.push({ id: newCommentRef.key, texto: comentario });
           actualizarLista('comentariosList', infoData[currentMateria].comentarios, 'comentarios');
           document.getElementById('nuevoComentario').value = '';
         }
@@ -460,7 +460,7 @@
             materia: currentMateria,
             timestamp: Date.now(),
           });
-          infoData[currentMateria].tareas.push(tarea);
+          infoData[currentMateria].tareas.push({ id: newTaskRef.key, texto: tarea });
           actualizarLista('tareasList', infoData[currentMateria].tareas, 'tareas');
           document.getElementById('nuevaTarea').value = '';
         }
@@ -471,13 +471,17 @@
         list.innerHTML = '';
         items.forEach((item, index) => {
           const li = document.createElement('li');
-          li.textContent = item;
+          li.textContent = item.texto;
 
           const removeBtn = document.createElement('button');
           removeBtn.textContent = 'X';
           removeBtn.className = 'remove-btn';
           removeBtn.onclick = function() {
+            // Eliminar del array local
             items.splice(index, 1);
+            // Eliminar de la base de datos
+            remove(ref(db, type + '/' + item.id));
+            // Actualizar la UI
             actualizarLista(elementId, items, type);
           };
 
